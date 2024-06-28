@@ -25,7 +25,7 @@ def calc_win_rate(close_trades):
     return win_rate
 
 # Sharpe Ratio = (Average Daily Return - Risk-Free Rate) / Standard Deviation of Daily Returns
-def calc_sharpe_ratio(close_trades, initial_capital, risk_free_rate_annual = 0.05):
+def calc_sharpe_ratio(close_trades, initial_capital, risk_free_rate_annual=0.05):
     close_trades.loc[:, 'return'] = close_trades['totalPnl'] / initial_capital
     average_return = close_trades['return'].mean()
     risk_free_rate_daily = risk_free_rate_annual / 252
@@ -39,7 +39,7 @@ def calc_drawdown(close_trades, initial_capital):
     close_trades.loc[:, 'portfolioValue'] = initial_capital + close_trades['cumulativePnl']
     close_trades.loc[:, 'runningMax'] = close_trades['portfolioValue'].cummax()
     close_trades.loc[:, 'drawdown'] = close_trades['portfolioValue'] / close_trades['runningMax'] - 1
-    mdd = close_trades['drawdown'].min()
+    mdd = close_trades['drawdown'].min() * 100
     return mdd
 
 # Odds Ratio = Number of Winning Trades / Number of Losing Trades
@@ -62,9 +62,9 @@ if __name__ == "__main__":
     
     if df is not None:
         # Filter only close transactions (Close Long, Close Short)
-        close_trades = df[df['side'].str.contains('sell', case=False)].copy()  # Explicitly create a copy
+        close_trades = df[df['side'].str.contains('sell', case = False)].copy()  # Explicitly create a copy
 
-        # calc total PnL including fees
+        # Calculate total PnL including fees
         close_trades.loc[:, 'totalPnl'] = close_trades['fillPnl'].astype(float) + close_trades['fee'].astype(float)
 
         roi = calc_roi(close_trades, initial_capital)
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         print(f"Win Rate: {win_rate:.2f}%")
 
         mdd = calc_drawdown(close_trades, initial_capital)
-        print(f"Maximum Drawdown (MDD): {mdd:.2%}")
+        print(f"Maximum Drawdown (MDD): {mdd:.2f}%")
 
         odds_ratio = calc_odds_ratio(close_trades)
         print(f"Odds Ratio: {odds_ratio:.2f}")
